@@ -5,6 +5,7 @@
 
 
 import sys
+import re
 
 """
 Baby Names
@@ -39,8 +40,33 @@ def extract_names(filename):
     alfabético.
     ['2006', 'Aaliyah 91', Aaron 57', 'Abagail 895', ' ...]
     """
-    # +++tu codigo va aqui+++
-    return
+    names = []
+
+ 
+    f = open(filename, 'rU')
+    text = f.read()
+
+    year_match = re.search(r'Popularity\sin\s(\d\d\d\d)', text)
+    if not year_match:
+  
+        sys.stderr.write('Couldn\'t find the year!\r\n')
+         sys.exit(1)
+     year = year_match.group(1)
+     names.append(year)
+
+    tuples = re.findall(r'<td>(\d+)</td><td>(\w+)</td>\<td>(\w+)</td>', text)
+
+      for rank_tuple in tuples:
+        (rank, boyname, girlname) = rank_tuple 
+         if boyname not in names_to_rank:
+            names_to_rank[boyname] = rank
+         if girlname not in names_to_rank:
+            names_to_rank[girlname] = rank
+    sorted_names = sorted(names_to_rank.keys())
+    for name in sorted_names:
+       names.append(name + " " + names_to_rank[name])      
+
+     return names
 
 
 def main():
@@ -58,7 +84,20 @@ def main():
         summary = True
         del args[0]
 
-    # +++tu codigo va aqui+++
+    for filename in args:
+       names = extract_names(filename)
+
+       text = '\n'.join(names)
+
+       if summary:
+      outf = open(filename + '.resumen', 'w')
+      outf.write(text + '\n')
+      outf.close()
+
+      else:
+      print text
+
+    
     # Por cada archivo pasado como parametro imprimir el resultado.
     # En caso se pase el flag generaresumen, guardar en un archivo
     # con el mismo nombre pero la extension .resumen
